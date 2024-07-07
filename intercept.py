@@ -6,6 +6,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from urllib.parse import urlparse, parse_qs
 
+# Define the relevant HTTP methods for penetration testing
+RELEVANT_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+
 def extract_request_details(log_entry):
     log_data = json.loads(log_entry)
     message = log_data.get('message', {})
@@ -13,7 +16,6 @@ def extract_request_details(log_entry):
     request = params.get('request', {})
     
     if not request:
-        print("Unexpected log entry format:", json.dumps(log_data, indent=2))
         return None
 
     url = request['url']
@@ -101,14 +103,15 @@ def intercept_requests(url):
         driver.quit()
         return
 
-    # Filter and print network requests
+    # Filter and print relevant network requests
     for entry in logs:
         log = json.loads(entry['message'])['message']
         if 'Network.requestWillBeSent' in log['method']:
             request_details = extract_request_details(entry['message'])
-            formatted_details = format_request_details(request_details)
-            print(formatted_details)
-            print("\n" + "="*80 + "\n")
+            if request_details and request_details['method'] in RELEVANT_METHODS:
+                formatted_details = format_request_details(request_details)
+                print(formatted_details)
+                print("\n" + "="*80 + "\n")
 
     # Close the browser
     driver.quit()
