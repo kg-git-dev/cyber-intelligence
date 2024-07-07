@@ -54,35 +54,47 @@ def format_request_details(details):
     return "\n".join(formatted_details)
 
 def intercept_requests(url):
-    print("started intercept")
+    print("Started intercept")
+
     # Validate and format the URL
     parsed_url = urlparse(url)
     if not parsed_url.scheme:
         url = "http://" + url
-
-    # Path to the ChromeDriver executable
-    CHROMEDRIVER_PATH = "./chromedriver/chromedriver"
 
     # Enable request interception in Chrome
     capabilities = DesiredCapabilities.CHROME.copy()
     capabilities['goog:loggingPrefs'] = {'performance': 'ALL'}
 
     # Initialize Chrome WebDriver
-    service = Service(CHROMEDRIVER_PATH)
+    service = Service('/usr/bin/chromedriver')  
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # Run in headless mode
     options.capabilities.update(capabilities)
 
-    driver = webdriver.Chrome(service=service, options=options)
+    try:
+        driver = webdriver.Chrome(service=service, options=options)
+    except Exception as e:
+        print(f"Error initializing Chrome WebDriver: {e}")
+        return
 
     # Open the URL
-    driver.get(url)
+    try:
+        driver.get(url)
+    except Exception as e:
+        print(f"Error loading URL {url}: {e}")
+        driver.quit()
+        return
 
     # Wait for some time to allow for requests to be logged
     time.sleep(5)
 
     # Fetch performance logs from the browser
-    logs = driver.get_log('performance')
+    try:
+        logs = driver.get_log('performance')
+    except Exception as e:
+        print(f"Error fetching performance logs: {e}")
+        driver.quit()
+        return
 
     # Filter and print network requests
     for entry in logs:
