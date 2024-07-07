@@ -2,8 +2,7 @@
 
 # Update package manager and install necessary packages
 sudo apt-get update
-sudo apt-get install -y python3-pip virtualenv chromium-driver chromium-browser \
-    libx11-xcb1 libnss3 libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libxss1 libasound2 libatk1.0-0 libgtk-3-0
+sudo apt-get install -y python3-pip virtualenv chromium-driver chromium-browser 
 
 # Create virtual environment
 echo "Creating virtual environment..."
